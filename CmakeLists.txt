@@ -1,0 +1,58 @@
+cmake_minimum_required (VERSION 3.13)
+
+set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake")
+
+message(STATUS "CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
+message(STATUS "CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")
+message(STATUS "Using toolchain file: ${CMAKE_TOOLCHAIN_FILE}")
+
+project (VulkanBrownbag CXX)
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_EXTENSIONS OFF)
+add_compile_options(/W4 /WX /sdl)
+
+# # spirv-headers is header-only and can be used from CMake via:
+
+# find_path(SPIRV_HEADERS_INCLUDE_DIRS "spirv/1.0/GLSL.std.450.h")
+# target_include_directories(${SPIRV_HEADERS_INCLUDE_DIRS})
+
+# # spirv-cross provides CMake targets:
+
+# # this is heuristically generated, and may not be correct
+# find_package(spirv_cross_c CONFIG REQUIRED)
+# target_link_libraries(spirv-cross-c)
+
+# find_package(spirv_cross_core CONFIG REQUIRED)
+# target_link_libraries(spirv-cross-core)
+
+# find_package(spirv_cross_cpp CONFIG REQUIRED)
+# target_link_libraries(spirv-cross-cpp)
+
+# find_package(spirv_cross_glsl CONFIG REQUIRED)
+# target_link_libraries(spirv-cross-glsl)
+
+# find_package(spirv_cross_hlsl CONFIG REQUIRED)
+# target_link_libraries(spirv-cross-hlsl)
+
+# find_package(spirv_cross_msl CONFIG REQUIRED)
+# target_link_libraries(spirv-cross-msl)
+
+# find_package(spirv_cross_reflect CONFIG REQUIRED)
+# target_link_libraries(spirv-cross-reflect)
+
+# find_package(spirv_cross_util CONFIG REQUIRED)
+# target_link_libraries(spirv-cross-util)
+
+
+
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/vulk")
+
+file(GLOB SAMPLE_DIRS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src/samples/*)
+
+foreach(dir ${SAMPLE_DIRS})
+  if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${dir})
+    message(STATUS "Adding sample: ${dir}")
+    add_subdirectory(${dir})
+  endif()
+endforeach()
