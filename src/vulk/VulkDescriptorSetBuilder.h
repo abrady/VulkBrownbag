@@ -51,8 +51,8 @@ class VulkDescriptorSetBuilder
 
     struct PerFrameInfo
     {
-        std::unordered_map<VulkShaderUBOBinding, BufSetUpdaterInfo> uniformSetInfos;
-        std::unordered_map<VulkShaderSSBOBinding, BufSetUpdaterInfo> ssboSetInfos;
+        std::unordered_map<uint32_t, BufSetUpdaterInfo> uniformSetInfos;
+        std::unordered_map<uint32_t, BufSetUpdaterInfo> ssboSetInfos;
     };
     std::array<PerFrameInfo, MAX_FRAMES_IN_FLIGHT> perFrameInfos;
 
@@ -61,7 +61,7 @@ class VulkDescriptorSetBuilder
         std::shared_ptr<VulkTextureView> imageView;
         std::shared_ptr<VulkSampler> sampler;
     };
-    std::array<std::unordered_map<VulkShaderTextureBinding, SamplerSetUpdaterInfo>, MAX_FRAMES_IN_FLIGHT> perFrameSamplerSetInfos;
+    std::array<std::unordered_map<uint32_t, SamplerSetUpdaterInfo>, MAX_FRAMES_IN_FLIGHT> perFrameSamplerSetInfos;
 
 public:
     VulkDescriptorSetBuilder(Vulk &vk) : vk(vk), layoutBuilder(vk), poolBuilder(vk)
@@ -76,7 +76,7 @@ public:
     }
 
     template <typename T>
-    VulkDescriptorSetBuilder &addFrameUBOs(VulkFrameUBOs<T> const &ubos, VkShaderStageFlagBits stageFlags, VulkShaderUBOBinding bindingID)
+    VulkDescriptorSetBuilder &addFrameUBOs(VulkFrameUBOs<T> const &ubos, VkShaderStageFlagBits stageFlags, uint32_t bindingID)
     {
         layoutBuilder.addUniformBuffer(stageFlags, bindingID);
         poolBuilder.addUniformBufferCount(MAX_FRAMES_IN_FLIGHT);
@@ -89,7 +89,7 @@ public:
 
     // for non-mutable uniform buffers
     template <typename T>
-    VulkDescriptorSetBuilder &addUniformBuffer(VulkUniformBuffer<T> const &uniformBuffer, VkShaderStageFlagBits stageFlags, VulkShaderUBOBinding bindingID)
+    VulkDescriptorSetBuilder &addUniformBuffer(VulkUniformBuffer<T> const &uniformBuffer, VkShaderStageFlagBits stageFlags, uint32_t bindingID)
     {
         layoutBuilder.addUniformBuffer(stageFlags, bindingID);
         poolBuilder.addUniformBufferCount(MAX_FRAMES_IN_FLIGHT);
@@ -101,7 +101,7 @@ public:
     }
 
     // for non-mutable image views that are the same for both frames.
-    VulkDescriptorSetBuilder &addBothFramesImageSampler(VkShaderStageFlags stageFlags, VulkShaderTextureBinding bindingID,
+    VulkDescriptorSetBuilder &addBothFramesImageSampler(VkShaderStageFlags stageFlags, uint32_t bindingID,
                                                         std::shared_ptr<VulkTextureView> imageView, std::shared_ptr<VulkSampler> sampler)
     {
         layoutBuilder.addImageSampler(stageFlags, bindingID);
@@ -111,7 +111,7 @@ public:
         return *this;
     }
 
-    VulkDescriptorSetBuilder &addFrameImageSampler(uint32_t frame, VkShaderStageFlags stageFlags, VulkShaderTextureBinding bindingID,
+    VulkDescriptorSetBuilder &addFrameImageSampler(uint32_t frame, VkShaderStageFlags stageFlags, uint32_t bindingID,
                                                    std::shared_ptr<VulkTextureView> imageView, std::shared_ptr<VulkSampler> sampler)
     {
         layoutBuilder.addImageSampler(stageFlags, bindingID);

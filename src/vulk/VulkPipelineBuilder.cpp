@@ -48,16 +48,9 @@ VulkPipelineBuilder::VulkPipelineBuilder(Vulk &vk) : vk(vk)
     // dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 }
 
-VulkPipelineBuilder &VulkPipelineBuilder::addShaderStage(VkShaderStageFlagBits stage, char const *path)
+VulkPipelineBuilder &VulkPipelineBuilder::addShaderStage(VkShaderStageFlagBits stage, std::string path)
 {
-    auto shaderCode = readFileIntoMem(path);
-    VkShaderModule shaderModule = vk.createShaderModule(shaderCode);
-    addShaderStage(stage, std::make_shared<VulkShaderModule>(vk, shaderModule));
-    return *this;
-}
-
-VulkPipelineBuilder &VulkPipelineBuilder::addShaderStage(VkShaderStageFlagBits stage, std::shared_ptr<VulkShaderModule> shaderModule)
-{
+    std::shared_ptr<VulkShaderModule> shaderModule = VulkShaderModule::fromFile(vk, path);
     VkPipelineShaderStageCreateInfo shaderStageInfo{};
     shaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     shaderStageInfo.stage = stage;

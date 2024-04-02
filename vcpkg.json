@@ -6,8 +6,6 @@
         "glfw3",
         "glm",
         "spdlog",
-        "spirv-cross",
-        "spirv-headers",
         "vulkan"
     ]
 }

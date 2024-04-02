@@ -30,23 +30,22 @@ class VulkPipelineBuilder
     VkRect2D scissor{};
     VkViewport viewport{};
 
-    VulkPipelineBuilder &addShaderStage(VkShaderStageFlagBits stage, char const *path);
-    VulkPipelineBuilder &addShaderStage(VkShaderStageFlagBits stage, std::shared_ptr<VulkShaderModule> shaderModule);
+    VulkPipelineBuilder &addShaderStage(VkShaderStageFlagBits stage, std::string path);
 
 public:
     VulkPipelineBuilder(Vulk &vk);
 
-    VulkPipelineBuilder &addvertShaderStage(std::shared_ptr<VulkShaderModule> shaderModule)
+    VulkPipelineBuilder &addvertShaderStage(std::string shaderModule)
     {
         return addShaderStage(VK_SHADER_STAGE_VERTEX_BIT, shaderModule);
     }
 
-    VulkPipelineBuilder &addFragmentShaderStage(std::shared_ptr<VulkShaderModule> shaderModule)
+    VulkPipelineBuilder &addFragmentShaderStage(std::string shaderModule)
     {
         return addShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, shaderModule);
     }
 
-    VulkPipelineBuilder &addGeometryShaderStage(std::shared_ptr<VulkShaderModule> shaderModule)
+    VulkPipelineBuilder &addGeometryShaderStage(std::string shaderModule)
     {
         return addShaderStage(VK_SHADER_STAGE_GEOMETRY_BIT, shaderModule);
     }

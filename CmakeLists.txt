@@ -12,38 +12,33 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS OFF)
 add_compile_options(/W4 /WX /sdl)
 
-# # spirv-headers is header-only and can be used from CMake via:
+# Function to compile GLSL to SPIR-V
+# -O0 : for debugging
+set(GLSLC_FLAGS "-O0" "-g" "--target-env=vulkan1.3" "-I${SHADER_GENERATED_HEADER_DIR}" "-I${CMAKE_SOURCE_DIR}/Source/Shaders/Common") # build debug symbols and turn off optimizations
+function(compile_shaders SHADER_DIR)
+    file(GLOB_RECURSE GLSL_SOURCE_FILES
+         "${SHADER_DIR}/*.vert"
+         "${SHADER_DIR}/*.geom"
+         "${SHADER_DIR}/*.frag")
 
-# find_path(SPIRV_HEADERS_INCLUDE_DIRS "spirv/1.0/GLSL.std.450.h")
-# target_include_directories(${SPIRV_HEADERS_INCLUDE_DIRS})
+    foreach(GLSL ${GLSL_SOURCE_FILES})
+        set(SPIRV "${PROJECT_BINARY_DIR}/${GLSL}")
+        add_custom_command(
+            OUTPUT ${SPIRV}
+            COMMAND glslc ${GLSLC_FLAGS} -o ${SPIRV} ${GLSL}
+            DEPENDS ${GLSL}
+            IMPLICIT_DEPENDS CXX ${GLSL}
+            COMMENT "Compiling ${GLSL} to ${SPIRV}"
+            VERBATIM
+        )
+        list(APPEND SPIRV_BINARY_FILES ${SPIRV})
+    endforeach(GLSL)
 
-# # spirv-cross provides CMake targets:
-
-# # this is heuristically generated, and may not be correct
-# find_package(spirv_cross_c CONFIG REQUIRED)
-# target_link_libraries(spirv-cross-c)
-
-# find_package(spirv_cross_core CONFIG REQUIRED)
-# target_link_libraries(spirv-cross-core)
-
-# find_package(spirv_cross_cpp CONFIG REQUIRED)
-# target_link_libraries(spirv-cross-cpp)
-
-# find_package(spirv_cross_glsl CONFIG REQUIRED)
-# target_link_libraries(spirv-cross-glsl)
-
-# find_package(spirv_cross_hlsl CONFIG REQUIRED)
-# target_link_libraries(spirv-cross-hlsl)
-
-# find_package(spirv_cross_msl CONFIG REQUIRED)
-# target_link_libraries(spirv-cross-msl)
-
-# find_package(spirv_cross_reflect CONFIG REQUIRED)
-# target_link_libraries(spirv-cross-reflect)
-
-# find_package(spirv_cross_util CONFIG REQUIRED)
-# target_link_libraries(spirv-cross-util)
-
+    add_custom_target(
+        Shaders ALL
+        DEPENDS ${SPIRV_BINARY_FILES}
+    )
+endfunction()
 
 
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/vulk")
