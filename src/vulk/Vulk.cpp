@@ -23,7 +23,6 @@ void Vulk::run()
     }
 
     vkDeviceWaitIdle(device);
-    cleanupVulkan(); // calls cleanup
 }
 
 void Vulk::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer, VkDeviceMemory &bufferMemory)
@@ -131,7 +130,7 @@ void Vulk::cleanupSwapChain()
     vkDestroySwapchainKHR(device, swapChain, nullptr);
 }
 
-void Vulk::cleanupVulkan()
+Vulk::~Vulk()
 {
     cleanupSwapChain();
 
@@ -143,8 +142,6 @@ void Vulk::cleanupVulkan()
     }
 
     vkDestroyCommandPool(device, commandPool, nullptr);
-
-    cleanup();
 
     vkDestroyRenderPass(device, renderPass, nullptr);
 

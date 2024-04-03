@@ -25,6 +25,13 @@ protected:
                        .addVertexInput(0, VK_FORMAT_R32G32B32_SFLOAT, sizeof(tri.vertices[0]))
                        .addvertShaderStage("passthru.vert")
                        .addFragmentShaderStage("passthru.frag")
+                       .setPrimitiveTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST)
+                       .setCullMode(VK_CULL_MODE_BACK_BIT)
+                       .setDepthTestEnabled(true)
+                       .setDepthWriteEnabled(true)
+                       .setDepthCompareOp(VK_COMPARE_OP_LESS)
+                       .setScissor(swapChainExtent)
+                       .setViewport(swapChainExtent)
                        .build(renderPass, descriptorSetInfo->descriptorSetLayout);
 
         makeEquilateralTri(1.f, 1, tri);
@@ -83,6 +90,9 @@ protected:
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->pipelineLayout, 0, 1,
                                     &descriptorSetInfo->descriptorSets[currentFrame]->descriptorSet, 0, nullptr);
 
+            VkDeviceSize offsets[] = {0};
+            vkCmdBindVertexBuffers(commandBuffer, 0, 1, &triVerts->buf, offsets);
+            vkCmdBindIndexBuffer(commandBuffer, triIndices->buf, 0, VK_INDEX_TYPE_UINT32);
             vkCmdDrawIndexed(commandBuffer, numIndices, 1, 0, 0, 0);
         }
         vkCmdEndRenderPass(commandBuffer);

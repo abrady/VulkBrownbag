@@ -50,6 +50,11 @@ VulkPipelineBuilder::VulkPipelineBuilder(Vulk &vk) : vk(vk)
 
 VulkPipelineBuilder &VulkPipelineBuilder::addShaderStage(VkShaderStageFlagBits stage, std::string path)
 {
+    // super lazy way to check if the stage already exists
+    for (auto &shaderStage : shaderStages)
+    {
+        VULK_THROW_IF(shaderStage.stage == stage, "Shader stage already exists");
+    }
     std::shared_ptr<VulkShaderModule> shaderModule = VulkShaderModule::fromFile(vk, path);
     VkPipelineShaderStageCreateInfo shaderStageInfo{};
     shaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -57,7 +62,7 @@ VulkPipelineBuilder &VulkPipelineBuilder::addShaderStage(VkShaderStageFlagBits s
     shaderStageInfo.module = shaderModule->shaderModule;
     shaderStageInfo.pName = "main"; // entrypoint, by convention
 
-    shaderModules.push_back(shaderModule);
+    shaderModules.push_back(shaderModule); // keep the module around
     shaderStages.push_back(shaderStageInfo);
     return *this;
 }
@@ -145,7 +150,19 @@ VulkPipelineBuilder &VulkPipelineBuilder::setBlending(bool enabled, VkColorCompo
 void VulkPipelineBuilder::build(VkRenderPass renderPass, std::shared_ptr<VulkDescriptorSetLayout> descriptorSetLayout, VkPipelineLayout *pipelineLayout,
                                 VkPipeline *graphicsPipeline)
 {
-    assert(viewport.maxDepth > 0.f);
+    bool hasVertexShader = false;
+    for (auto shaderStage : shaderStages)
+    {
+        if (shaderStage.stage == VK_SHADER_STAGE_VERTEX_BIT)
+        {
+            hasVertexShader = true;
+            break;
+        }
+    }
+    VULK_THROW_IF(!hasVertexShader, "Vertex shader not set, this is required for a graphics pipeline to work");
+    VULK_THROW_IF(viewport.maxDepth == 0.f, "Viewport not set");
+    VULK_THROW_IF(scissor.extent.width == 0 || scissor.extent.height == 0, "Scissor not set");
+    VULK_THROW_IF(vertInputs.size() == 0, "You probably want to add some vertex inputs");
 
     std::vector<VkVertexInputBindingDescription> bindingDescriptions;
     std::vector<VkVertexInputAttributeDescription> attributeDescriptions;

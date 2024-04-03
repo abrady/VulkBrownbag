@@ -37,6 +37,8 @@ class Vulk
 public:
   void run();
 
+  virtual ~Vulk();
+
 public:
   VkDevice device;
   VkRenderPass renderPass;
@@ -82,7 +84,6 @@ private:
 protected:
   virtual void init() = 0;
   virtual void drawFrame(VkCommandBuffer commandBuffer, VkFramebuffer frameBuffer) = 0;
-  virtual void cleanup() = 0;
 
   VkInstance instance;
   virtual void handleEvents()

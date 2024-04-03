@@ -23,7 +23,7 @@ function(compile_shaders SHADER_DIR)
 
     foreach(GLSL ${GLSL_SOURCE_FILES})
         get_filename_component(SPIRV_NAME ${GLSL} NAME)
-        set(SPIRV "${PROJECT_BINARY_DIR}/${SPIRV_NAME}")
+        set(SPIRV "${PROJECT_BINARY_DIR}/Debug/${SPIRV_NAME}")
         add_custom_command(
             OUTPUT ${SPIRV}
             COMMAND glslc ${GLSLC_FLAGS} "${GLSL}" -o "${SPIRV}" 
