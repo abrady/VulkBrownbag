@@ -6,6 +6,11 @@
 #include "VulkDescriptorSetLayoutBuilder.h"
 #include "VulkDescriptorSetBuilder.h"
 
+// Super basic example that is basically the minimum needed to draw a triangle
+// Challenges:
+// 1. open this up in renderdoc and debug the vertex and fragment shaders
+// 2. change the color of the triangle and clear color
+// 3. change the size of the triangle so it fits the entire viewport (hint: VulkMesh has an 'xform' method to help with this)
 class Triangle : public Vulk
 {
     std::shared_ptr<VulkPipeline> pipeline;

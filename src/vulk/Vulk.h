@@ -52,18 +52,6 @@ public:
   uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
   VkShaderModule createShaderModule(const std::vector<char> &code);
   VkDescriptorSet createDescriptorSet(VkDescriptorSetLayout descriptorSetLayout, VkDescriptorPool descriptorPool);
-  void setMouseHandler(std::function<void(GLFWwindow *, int, int, int)> onButton, std::function<void(GLFWwindow *, double, double)> onMove)
-  {
-    glfwSetMouseButtonCallback(window, [](GLFWwindow *w, int button, int action, int mods)
-                               { static_cast<Vulk *>(glfwGetWindowUserPointer(w))->onMouseButton(w, button, action, mods); });
-    glfwSetCursorPosCallback(
-        window, [](GLFWwindow *w, double xpos, double ypos)
-        { static_cast<Vulk *>(glfwGetWindowUserPointer(w))->onCursorMove(w, xpos, ypos); });
-    onMouseButton = onButton;
-    onCursorMove = onMove;
-    glfwSetWindowUserPointer(window, this);
-  }
-
   VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
   VkFormat findDepthFormat();
   void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
@@ -76,10 +64,6 @@ public:
   VkExtent2D swapChainExtent;
   VkCommandPool commandPool;
   std::vector<VkCommandBuffer> commandBuffers;
-
-private:
-  std::function<void(GLFWwindow *, int, int, int)> onMouseButton;
-  std::function<void(GLFWwindow *, double, double)> onCursorMove;
 
 protected:
   virtual void init() = 0;
@@ -123,7 +107,6 @@ private:
   void initWindow();
   void initVulkan();
   void cleanupSwapChain();
-  void cleanupVulkan();
   void recreateSwapChain();
   void createInstance();
   void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
