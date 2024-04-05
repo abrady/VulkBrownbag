@@ -2,10 +2,6 @@ cmake_minimum_required (VERSION 3.13)
 
 set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake")
 
-message(STATUS "CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
-message(STATUS "CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")
-message(STATUS "Using toolchain file: ${CMAKE_TOOLCHAIN_FILE}")
-
 project (VulkanBrownbag CXX)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -15,31 +11,37 @@ add_compile_options(/W4 /WX /sdl)
 # Function to compile GLSL to SPIR-V
 # -O0 : for debugging
 set(GLSLC_FLAGS "-O0" "-g" "--target-env=vulkan1.3" "-I${SHADER_GENERATED_HEADER_DIR}" "-I${CMAKE_SOURCE_DIR}/Source/Shaders/Common") # build debug symbols and turn off optimizations
-function(compile_shaders SHADER_DIR)
+function(add_shader_compilation SHADER_DIR PROJECT_TARGET_NAME)  
     file(GLOB_RECURSE GLSL_SOURCE_FILES
          "${SHADER_DIR}/*.vert"
          "${SHADER_DIR}/*.geom"
          "${SHADER_DIR}/*.frag")
 
+    #message(STATUS "found ${GLSL_SOURCE_FILES} in ${SHADER_DIR}")
     foreach(GLSL ${GLSL_SOURCE_FILES})
         get_filename_component(SPIRV_NAME ${GLSL} NAME)
         set(SPIRV "${PROJECT_BINARY_DIR}/Debug/${SPIRV_NAME}")
+        file(RELATIVE_PATH GLSL_REL ${CMAKE_SOURCE_DIR} ${GLSL})
+        file(RELATIVE_PATH SPIRV_REL ${CMAKE_BINARY_DIR}/.. ${SPIRV})
         add_custom_command(
             OUTPUT ${SPIRV}
             COMMAND glslc ${GLSLC_FLAGS} "${GLSL}" -o "${SPIRV}" 
             DEPENDS ${GLSL}
             IMPLICIT_DEPENDS CXX ${GLSL}
-            COMMENT "Compiling ${GLSL} to ${SPIRV}"
+            COMMENT "Compiling shader ${GLSL_REL} to ${SPIRV_REL}"
             VERBATIM
         )
-        message(STATUS "Adding build step for ${GLSL} to build ${SPIRV}")
+        message(STATUS "Adding build step for ${GLSL_REL} to build ${SPIRV_REL}")
         list(APPEND SPIRV_BINARY_FILES ${SPIRV})
     endforeach(GLSL)
 
+    set(COMPILE_SHADERS_TARGET_NAME "CompileShaders_${PROJECT_TARGET_NAME}")
     add_custom_target(
-        CompileShaders ALL
+        ${COMPILE_SHADERS_TARGET_NAME} ALL
         DEPENDS ${SPIRV_BINARY_FILES}
     )
+    add_dependencies(${PROJECT_TARGET_NAME} ${COMPILE_SHADERS_TARGET_NAME})
+    message(STATUS "Adding target ${COMPILE_SHADERS_TARGET_NAME} to ${PROJECT_TARGET_NAME}")
 endfunction()
 
 
