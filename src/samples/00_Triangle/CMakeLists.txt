@@ -1,5 +1,4 @@
 get_filename_component(PROJECT_NAME "${CMAKE_CURRENT_LIST_DIR}" NAME)
-message(STATUS "Building ${PROJECT_NAME}")
 project(${PROJECT_NAME})
 
 find_package(glfw3 CONFIG REQUIRED)

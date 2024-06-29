@@ -6,6 +6,8 @@
         "glfw3",
         "glm",
         "spdlog",
-        "vulkan"
+        "vulkan",
+        "vulkan-headers",
+        "vulkan-memory-allocator"
     ]
 }
